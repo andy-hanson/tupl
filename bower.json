@@ -1,0 +1,8 @@
+{
+	"name": "tupl",
+	"main": "dist/**/*",
+	"ignore": [ "compiled-test", "node_modules", "test", "gulp", "gulpfile.js", "package.json", "README.md" ],
+	"moduleType": "amd",
+	"private": true,
+	"license": "WTFPL"
+}

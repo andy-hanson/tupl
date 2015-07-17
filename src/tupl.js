@@ -1,6 +1,9 @@
-import { assert, pAdd } from './private/util'
+import { assert, assignProperties, createObject } from './private/util'
 
-export default (name, superType, doc, namesTypes, protoProps = { }, tuplProps = { }) => {
+export default (name, superType, doc, namesTypes, protoProps, tuplProps) => {
+	// TODO:ES6 Optional arguments
+	if (protoProps === undefined) protoProps = { }
+	if (tuplProps === undefined) tuplProps = { }
 	let props = [ ]
 	assert(namesTypes.length % 2 === 0)
 	for (let i = 0; i < namesTypes.length; i = i + 2)
@@ -12,10 +15,9 @@ export default (name, superType, doc, namesTypes, protoProps = { }, tuplProps = 
 		return new ${name}(${args});
 `
 
-	props.forEach(({ name }) => {
+	props.forEach(({ name }) =>
 		body = body +
-			`this.${name} = ${name}; if (this.${name} === undefined) this.${name} = null;\n\t`
-	})
+			`this.${name} = ${name}; if (this.${name} === undefined) this.${name} = null;\n\t`)
 	body = body + 'this.postConstruct()\n}'
 	const type = Function(body)()
 	const prototypeDefaults = {
@@ -32,21 +34,21 @@ export default (name, superType, doc, namesTypes, protoProps = { }, tuplProps = 
 		// Don't use JSON.stringify because we want other things below this to use their toString().
 		toString() { return inspect(this) }
 	}
-	const prototype = Object.assign(
-		Object.create(superType.prototype),
-		prototypeDefaults,
-		protoProps)
+	type.prototype = createObject(superType.prototype, prototypeDefaults, protoProps)
 	const defaultProps = {
 		doc,
 		props,
-		prototype,
 		isTuple: true,
 		toString() { return this.name }
 	}
-	return Object.assign(type, defaultProps, tuplProps)
+	assignProperties(type, defaultProps, tuplProps)
+	return type
 }
 
-export const abstract = (name, superType, doc, protoProps = { }, abstractProps = { }) => {
+export const abstract = (name, superType, doc, protoProps, abstractProps) => {
+	// TODO:ES6 Optional arguments
+	if (protoProps === undefined) protoProps = { }
+	if (abstractProps === undefined) abstractProps = { }
 	const type = Function(
 		`return function ${name}() { throw new Error("${name} is an abstract type.") }`
 		)()

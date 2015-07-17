@@ -22,7 +22,12 @@ function pipeBabel(stream) {
 	.pipe(plumber())
 	.pipe(sourcemaps.init())
 	.pipe(babel({
-		modules: 'amd'
+		modules: 'amd',
+		whitelist: [
+			'es6.destructuring',
+			'es6.modules',
+			'strict'
+		]
 	}))
 	.pipe(header(
 		'if (typeof define !== \'function\') var define = require(\'amdefine\')(module);'))
